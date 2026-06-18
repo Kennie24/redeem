@@ -60,15 +60,21 @@
         <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter mb-lg">
             @foreach ($assets as $i => $a)
                 <div class="reveal bento-card rounded-xl border border-outline-variant/10 overflow-hidden flex flex-col" style="--reveal-delay: {{ $i * 60 }}ms">
-                    <div class="relative aspect-[5/3] overflow-hidden">
+                    <div class="relative aspect-[5/3] overflow-hidden bg-surface-container-high">
+                        {{-- Fallback layer behind the image. If <img> 404s, onerror reveals this. --}}
+                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-xs text-secondary">
+                            <span class="material-symbols-outlined text-[64px] opacity-50">album</span>
+                            <span class="text-label-sm uppercase tracking-widest opacity-70">{{ $a->artist }}</span>
+                        </div>
                         @if ($a->cover_url)
-                            <img src="{{ $a->cover_url }}" alt="{{ $a->title }}" class="absolute inset-0 w-full h-full object-cover" />
-                        @else
-                            <div class="absolute inset-0 flex items-center justify-center bg-surface-container-high">
-                                <span class="material-symbols-outlined text-[80px] text-secondary opacity-50">album</span>
-                            </div>
+                            <img src="{{ $a->cover_url }}"
+                                 alt="{{ $a->title }}"
+                                 loading="lazy"
+                                 referrerpolicy="no-referrer"
+                                 onerror="this.onerror=null; this.style.display='none';"
+                                 class="absolute inset-0 w-full h-full object-cover" />
                         @endif
-                        <div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent pointer-events-none"></div>
                         <div class="absolute top-md left-md flex items-center gap-xs">
                             <span class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-label-sm font-bold uppercase tracking-widest {{ $statusClasses[$a->status] ?? '' }}">
                                 <span class="w-2 h-2 rounded-full {{ $a->status === 'live' ? 'bg-primary animate-pulse' : 'bg-current opacity-60' }}"></span>

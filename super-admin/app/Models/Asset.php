@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Asset extends Model
@@ -45,10 +44,13 @@ class Asset extends Model
     {
         return Attribute::get(function () {
             if (!$this->cover_path) return null;
-            if (Str::startsWith($this->cover_path, ['http://', 'https://'])) {
+            if (Str::startsWith($this->cover_path, ['http://', 'https://', '//', 'data:'])) {
                 return $this->cover_path;
             }
-            return Storage::disk('public')->url($this->cover_path);
+            // Root-relative so the image resolves on any host (localhost,
+            // Herd, prod) — Storage::url() would bake in APP_URL and break
+            // when the actual host differs.
+            return '/storage/'.ltrim($this->cover_path, '/');
         });
     }
 
