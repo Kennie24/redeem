@@ -1,10 +1,10 @@
 @php
-    $route = Route::currentRouteName();
+    $route = Route::currentRouteName() ?? '';
     $nav = [
         ['label' => 'Overview',      'icon' => 'dashboard',          'route' => 'super-admin.dashboard'],
         ['label' => 'Redemptions',   'icon' => 'confirmation_number','route' => 'super-admin.redemptions'],
         ['label' => 'Users',         'icon' => 'group',              'route' => 'super-admin.users'],
-        ['label' => 'Assets',        'icon' => 'album',              'route' => 'super-admin.assets'],
+        ['label' => 'Assets',        'icon' => 'album',              'route' => 'super-admin.assets.index', 'match' => 'super-admin.assets.'],
         ['label' => 'Revenue',       'icon' => 'payments',           'route' => 'super-admin.revenue'],
         ['label' => 'System Health', 'icon' => 'monitor_heart',      'route' => 'super-admin.system'],
         ['label' => 'Audit Log',     'icon' => 'history',            'route' => 'super-admin.audit'],
@@ -27,16 +27,16 @@
 
     <nav class="flex-1 overflow-y-auto px-sm py-md space-y-xs">
         @foreach ($nav as $item)
-            @php $active = $route === $item['route']; @endphp
+            @php
+                $match = $item['match'] ?? null;
+                $active = $route === $item['route'] || ($match && str_starts_with($route, $match));
+            @endphp
             <a href="{{ route($item['route']) }}"
                class="sidebar-link {{ $active ? 'active' : '' }}
                       group relative flex items-center gap-sm rounded-lg px-md py-sm text-[14px] font-medium">
                 <span class="nav-rail absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full"></span>
                 <span class="material-symbols-outlined {{ $active ? 'filled' : '' }} text-[20px]">{{ $item['icon'] }}</span>
                 <span>{{ $item['label'] }}</span>
-                @if (!empty($item['badge']))
-                    <span class="ml-auto text-[10px] px-2 py-[1px] rounded-full bg-primary/15 text-primary">{{ $item['badge'] }}</span>
-                @endif
             </a>
         @endforeach
     </nav>
