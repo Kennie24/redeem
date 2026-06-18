@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+
 class SuperAdminController extends Controller
 {
     public function dashboard()
     {
         $kpis = [
             ['label' => 'Total Redemptions', 'value' => '128,420', 'delta' => '+12.4%', 'trend' => 'up',   'icon' => 'confirmation_number', 'spark' => [4,8,6,12,10,16,14,22,20,28,26,34]],
-            ['label' => 'Active Users',      'value' => '42,189',  'delta' => '+5.1%',  'trend' => 'up',   'icon' => 'group',               'spark' => [10,14,12,16,15,20,19,24,22,28,26,30]],
+            ['label' => 'Active Users',      'value' => number_format(User::count()), 'delta' => 'Live', 'trend' => 'up', 'icon' => 'group', 'spark' => [0,0,0,0,0,0,0,0,0,0,0,User::count()]],
             ['label' => 'Revenue (MTD)',     'value' => '$284,920','delta' => '+8.7%',  'trend' => 'up',   'icon' => 'payments',            'spark' => [5,7,6,9,11,10,14,13,17,16,21,25]],
             ['label' => 'Failed Tokens',     'value' => '142',     'delta' => '-3.2%',  'trend' => 'down', 'icon' => 'report',              'spark' => [22,18,20,15,17,12,14,10,11,8,9,6]],
         ];
@@ -25,21 +27,8 @@ class SuperAdminController extends Controller
             ['name' => 'Flow State',    'plays' => '298,556', 'change' => '+6%',  'img' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCt_-sTtFeR6r6xH5xRemZpReuuMF39oyTtWil36RNL_NZRQqUvglDVqGuapXyb-DY5aUMcrjlC4ex3jEeQ0kxmkzaWUBpZ7ZByDODh9-4WEgKd29po8VJeQPciQZ8xMyCHrvoUz1_3wq4ozBvxSo_Hr9UhS5KG7_T8PCRIPLtpXDU05kHRYeYuP2tD3xYzLD8trQz2obauulg1zELcYeTHvqxCWTkToOHX7pexR5I8DiPLzB3jNQ_UPHCyZ0UlLyhHBvBfsQY0oIQ'],
             ['name' => 'Bass Theory',   'plays' => '212,488', 'change' => '+4%',  'img' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCAPhAU3ufy4jmWhXubAFevI9zzzJNKCd7vfd337ycgUkpbfBRQPeIEHsM2v_bJmXJ9xKPRTOt3q3BP7DWlZpgUV4K-hcm0cGW8Nf7iL7QEdGp1nnbda3pmKtseCvJ2553DZpWkTvFFbacAsu1QrJNjv4mLDlgZcuR1ygt54OQ6tAd_nvssG7JqUAGHSh15UWclCvsvi5fQV2Vn2G8oWtb1WRPFzLuSITC7K3DCZpk9nkezWvQXzDnkpB4SZlgJIgtXNmrJ9Yd-qFU'],
         ];
-        $recentRedemptions = [
-            ['id' => '#TK-88219', 'user' => 'amelia.k@example.com',  'asset' => 'Synthetic Horizons', 'status' => 'Success', 'value' => '$9.99', 'time' => 'Just now'],
-            ['id' => '#TK-88218', 'user' => 'rae.t@example.com',     'asset' => 'Synthetic Horizons', 'status' => 'Success', 'value' => '$9.99', 'time' => '2 min ago'],
-            ['id' => '#TK-88217', 'user' => 'jules.x@example.com',   'asset' => 'Liquid Rhythms',     'status' => 'Invalid', 'value' => '—',     'time' => '6 min ago'],
-            ['id' => '#TK-88216', 'user' => 'morgan.b@example.com',  'asset' => 'After Hours',        'status' => 'Pending', 'value' => '$4.99', 'time' => '12 min ago'],
-            ['id' => '#TK-88215', 'user' => 'leo.r@example.com',     'asset' => 'Subterranean',       'status' => 'Success', 'value' => '$9.99', 'time' => '21 min ago'],
-            ['id' => '#TK-88214', 'user' => 'maya.f@example.com',    'asset' => 'Midnight Mix',       'status' => 'Refund',  'value' => '-$4.99','time' => '34 min ago'],
-        ];
-        $users = [
-            ['name' => 'Amelia Kato',  'email' => 'amelia.k@example.com', 'tier' => 'Premium · II', 'redemptions' => 24, 'status' => 'Active',    'joined' => 'Mar 2024'],
-            ['name' => 'Rae Thompson', 'email' => 'rae.t@example.com',    'tier' => 'Premium · I',  'redemptions' => 18, 'status' => 'Active',    'joined' => 'Apr 2024'],
-            ['name' => 'Jules Xu',     'email' => 'jules.x@example.com',  'tier' => 'Free',         'redemptions' => 3,  'status' => 'Suspended', 'joined' => 'May 2024'],
-            ['name' => 'Morgan Brett', 'email' => 'morgan.b@example.com', 'tier' => 'Premium · I',  'redemptions' => 12, 'status' => 'Active',    'joined' => 'Jun 2024'],
-            ['name' => 'Leo Reyes',    'email' => 'leo.r@example.com',    'tier' => 'Premium · II', 'redemptions' => 31, 'status' => 'Active',    'joined' => 'Jan 2024'],
-        ];
+        $recentRedemptions = [];
+        $users = $this->userRows();
         $systemHealth = [
             ['service' => 'API Gateway',     'status' => 'Operational', 'latency' => '42 ms',  'uptime' => '99.99%'],
             ['service' => 'Auth Service',    'status' => 'Operational', 'latency' => '38 ms',  'uptime' => '99.97%'],
@@ -58,40 +47,21 @@ class SuperAdminController extends Controller
             ['label' => 'This Month',   'value' => '38,420', 'delta' => '+5.1%',  'icon' => 'calendar_month'],
             ['label' => 'Failure Rate', 'value' => '0.42%',  'delta' => '-0.1%',  'icon' => 'percent'],
         ];
-        $rows = [
-            ['id' => '#TK-88219', 'user' => 'amelia.k@example.com',  'asset' => 'Synthetic Horizons', 'source' => 'Vinyl insert', 'status' => 'Success', 'value' => '$9.99',  'time' => 'Just now',     'ip' => '24.118.55.10'],
-            ['id' => '#TK-88218', 'user' => 'rae.t@example.com',     'asset' => 'Synthetic Horizons', 'source' => 'Vinyl insert', 'status' => 'Success', 'value' => '$9.99',  'time' => '2 min ago',    'ip' => '188.42.12.7'],
-            ['id' => '#TK-88217', 'user' => 'jules.x@example.com',   'asset' => 'Liquid Rhythms',     'source' => 'Digital pass', 'status' => 'Invalid', 'value' => '—',      'time' => '6 min ago',    'ip' => '74.92.221.4'],
-            ['id' => '#TK-88216', 'user' => 'morgan.b@example.com',  'asset' => 'After Hours',        'source' => 'NFC tag',      'status' => 'Pending', 'value' => '$4.99',  'time' => '12 min ago',   'ip' => '99.65.18.222'],
-            ['id' => '#TK-88215', 'user' => 'leo.r@example.com',     'asset' => 'Subterranean',       'source' => 'Merch QR',     'status' => 'Success', 'value' => '$9.99',  'time' => '21 min ago',   'ip' => '212.55.40.91'],
-            ['id' => '#TK-88214', 'user' => 'maya.f@example.com',    'asset' => 'Midnight Mix',       'source' => 'Digital pass', 'status' => 'Refund',  'value' => '-$4.99', 'time' => '34 min ago',   'ip' => '154.21.6.33'],
-            ['id' => '#TK-88213', 'user' => 'devon.r@example.com',   'asset' => 'Synthetic Horizons', 'source' => 'Vinyl insert', 'status' => 'Success', 'value' => '$9.99',  'time' => '1 hr ago',     'ip' => '67.10.78.5'],
-            ['id' => '#TK-88212', 'user' => 'sage.h@example.com',    'asset' => 'Liquid Rhythms',     'source' => 'Digital pass', 'status' => 'Success', 'value' => '$9.99',  'time' => '1 hr ago',     'ip' => '203.0.113.4'],
-            ['id' => '#TK-88211', 'user' => 'noor.p@example.com',    'asset' => 'After Hours',        'source' => 'NFC tag',      'status' => 'Success', 'value' => '$4.99',  'time' => '2 hr ago',     'ip' => '40.121.9.12'],
-            ['id' => '#TK-88210', 'user' => 'theo.b@example.com',    'asset' => 'Bass Theory',        'source' => 'Vinyl insert', 'status' => 'Invalid', 'value' => '—',      'time' => '3 hr ago',     'ip' => '149.40.62.18'],
-        ];
+        $rows = [];
         return view('super-admin.redemptions', compact('stats','rows'));
     }
 
     public function users()
     {
+        $totalUsers = User::count();
+        $newUsers = User::where('created_at', '>=', now()->subDays(7))->count();
         $stats = [
-            ['label' => 'Total Users', 'value' => '42,189', 'delta' => '+5.1%',  'icon' => 'group',           'trend' => 'up'],
-            ['label' => 'Premium',     'value' => '18,902', 'delta' => '+9.4%',  'icon' => 'workspace_premium','trend' => 'up'],
-            ['label' => 'Suspended',   'value' => '124',    'delta' => '-2.0%',  'icon' => 'block',           'trend' => 'down'],
-            ['label' => 'New (7d)',    'value' => '2,418',  'delta' => '+11.2%', 'icon' => 'person_add',      'trend' => 'up'],
+            ['label' => 'Total Users', 'value' => number_format($totalUsers), 'delta' => 'Live', 'icon' => 'group', 'trend' => 'up'],
+            ['label' => 'Admins', 'value' => number_format(User::where('is_super_admin', true)->count()), 'delta' => 'Active', 'icon' => 'workspace_premium', 'trend' => 'up'],
+            ['label' => 'Suspended', 'value' => '0', 'delta' => 'None', 'icon' => 'block', 'trend' => 'down'],
+            ['label' => 'New (7d)', 'value' => number_format($newUsers), 'delta' => 'Live', 'icon' => 'person_add', 'trend' => 'up'],
         ];
-        $rows = [
-            ['name' => 'Amelia Kato',  'email' => 'amelia.k@example.com', 'tier' => 'Premium · II', 'redemptions' => 24, 'status' => 'Active',    'joined' => 'Mar 2024', 'country' => 'JP'],
-            ['name' => 'Rae Thompson', 'email' => 'rae.t@example.com',    'tier' => 'Premium · I',  'redemptions' => 18, 'status' => 'Active',    'joined' => 'Apr 2024', 'country' => 'US'],
-            ['name' => 'Jules Xu',     'email' => 'jules.x@example.com',  'tier' => 'Free',         'redemptions' => 3,  'status' => 'Suspended', 'joined' => 'May 2024', 'country' => 'CN'],
-            ['name' => 'Morgan Brett', 'email' => 'morgan.b@example.com', 'tier' => 'Premium · I',  'redemptions' => 12, 'status' => 'Active',    'joined' => 'Jun 2024', 'country' => 'GB'],
-            ['name' => 'Leo Reyes',    'email' => 'leo.r@example.com',    'tier' => 'Premium · II', 'redemptions' => 31, 'status' => 'Active',    'joined' => 'Jan 2024', 'country' => 'PH'],
-            ['name' => 'Devon Riley',  'email' => 'devon.r@example.com',  'tier' => 'Free',         'redemptions' => 6,  'status' => 'Active',    'joined' => 'Feb 2024', 'country' => 'CA'],
-            ['name' => 'Sage Han',     'email' => 'sage.h@example.com',   'tier' => 'Premium · I',  'redemptions' => 14, 'status' => 'Active',    'joined' => 'Feb 2024', 'country' => 'KR'],
-            ['name' => 'Noor Patel',   'email' => 'noor.p@example.com',   'tier' => 'Premium · II', 'redemptions' => 22, 'status' => 'Active',    'joined' => 'Jan 2024', 'country' => 'IN'],
-            ['name' => 'Theo Brennan', 'email' => 'theo.b@example.com',   'tier' => 'Free',         'redemptions' => 2,  'status' => 'Inactive',  'joined' => 'Dec 2023', 'country' => 'AU'],
-        ];
+        $rows = $this->userRows();
         return view('super-admin.users', compact('stats','rows'));
     }
 
@@ -154,19 +124,25 @@ class SuperAdminController extends Controller
 
     public function audit()
     {
-        $events = [
-            ['who' => 'ken@soundredeem.io',     'action' => 'user.suspended',    'target' => 'jules.x@example.com',  'meta' => 'Reason: chargeback risk',   'time' => 'Just now',     'severity' => 'warning'],
-            ['who' => 'ken@soundredeem.io',     'action' => 'asset.published',   'target' => 'After Hours',          'meta' => 'Price $4.99 · Limit 5,000', 'time' => '12 min ago',   'severity' => 'info'],
-            ['who' => 'system',                 'action' => 'token.invalidated', 'target' => '#TK-88217',            'meta' => 'Source: Digital pass',      'time' => '24 min ago',   'severity' => 'warning'],
-            ['who' => 'rae.ops@soundredeem.io', 'action' => 'role.updated',      'target' => 'sam.k@soundredeem.io', 'meta' => 'staff → support',           'time' => '1 hr ago',     'severity' => 'info'],
-            ['who' => 'system',                 'action' => 'payout.processed',  'target' => 'Stripe',               'meta' => '$84,201.00 settled',        'time' => '2 hr ago',     'severity' => 'success'],
-            ['who' => 'ken@soundredeem.io',     'action' => 'api_key.rotated',   'target' => 'live_pk_***42',        'meta' => 'Rotated by Super Admin',    'time' => '6 hr ago',     'severity' => 'critical'],
-            ['who' => 'system',                 'action' => 'cdn.degraded',      'target' => 'eu-west-1',            'meta' => 'Auto-failover engaged',     'time' => '14 hr ago',    'severity' => 'critical'],
-            ['who' => 'rae.ops@soundredeem.io', 'action' => 'refund.issued',     'target' => '#TK-88214',            'meta' => '$4.99 → maya.f',            'time' => '1 day ago',    'severity' => 'warning'],
-            ['who' => 'ken@soundredeem.io',     'action' => 'settings.updated',  'target' => 'platform.branding',    'meta' => 'Theme: Sonic Spotify',      'time' => '2 days ago',   'severity' => 'info'],
-            ['who' => 'system',                 'action' => 'backup.completed',  'target' => 'rds.snapshot.daily',   'meta' => 'Size 12.4 GB',              'time' => '2 days ago',   'severity' => 'success'],
-        ];
+        $events = [];
         return view('super-admin.audit', compact('events'));
+    }
+
+    private function userRows(): array
+    {
+        return User::query()
+            ->latest()
+            ->get()
+            ->map(fn (User $user) => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'tier' => $user->is_super_admin ? 'Super Admin' : 'User',
+                'redemptions' => 0,
+                'status' => 'Active',
+                'joined' => $user->created_at?->format('M Y') ?? '—',
+                'country' => '—',
+            ])
+            ->all();
     }
 
     public function settings()

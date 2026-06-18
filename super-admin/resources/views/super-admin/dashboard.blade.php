@@ -251,8 +251,6 @@
                 </div>
                 <ol class="relative border-s border-outline-variant/30 ml-2 space-y-md">
                     @foreach ([
-                        ['icon' => 'qr_code_scanner', 'title' => 'Token scanned',     'meta' => 'amelia.k · vinyl insert',   'time' => 'just now',  'color' => 'text-primary'],
-                        ['icon' => 'person_add',     'title' => 'New user signed up','meta' => 'kai.h@example.com',          'time' => '1 min ago', 'color' => 'text-on-surface'],
                         ['icon' => 'block',          'title' => 'Token rejected',    'meta' => '#TK-88217 · already redeemed','time' => '6 min ago', 'color' => 'text-error'],
                         ['icon' => 'payments',       'title' => 'Payment captured',  'meta' => '$9.99 · stripe',             'time' => '8 min ago', 'color' => 'text-primary'],
                         ['icon' => 'cloud_upload',   'title' => 'New asset published','meta' => 'Cyber Echoes · "Skyline"',  'time' => '22 min ago','color' => 'text-on-surface'],
