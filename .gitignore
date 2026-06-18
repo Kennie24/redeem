@@ -7,15 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
-.env
-.env.local
-dist
-dist-ssr
-*.local
-super-admin/
+.pnp
+.pnp.js
 
-# Editor directories and files
+# Editors
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -25,3 +22,27 @@ super-admin/
 *.njsproj
 *.sln
 *.sw?
+
+# Vite / build output
+dist
+dist-ssr
+*.local
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Laravel-specific (also covered by super-admin/.gitignore but belt-and-braces)
+super-admin/vendor/
+super-admin/node_modules/
+super-admin/public/build/
+super-admin/public/hot
+super-admin/storage/*.key
+super-admin/storage/logs/*
+super-admin/storage/framework/cache/data/*
+super-admin/storage/framework/sessions/*
+super-admin/storage/framework/views/*
+super-admin/bootstrap/cache/*.php
+super-admin/.phpunit.result.cache
+super-admin/.phpunit.cache
