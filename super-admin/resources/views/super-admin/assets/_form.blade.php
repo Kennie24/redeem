@@ -44,6 +44,7 @@
                 <input id="cover-input" type="file" name="cover" accept="image/jpeg,image/png,image/webp"
                        class="text-body-md text-on-surface file:mr-sm file:py-xs file:px-md file:rounded-full file:border-0 file:bg-primary-container file:text-on-primary-container file:font-bold file:uppercase file:tracking-widest file:text-label-sm hover:file:scale-[1.02]" />
                 <span class="text-label-sm text-secondary">JPG, PNG, or WEBP · up to 5 MB</span>
+                <span id="cover-client-error" class="hidden text-label-sm text-error font-bold"></span>
             </label>
 
             <div class="my-md flex items-center gap-sm">
@@ -140,7 +141,17 @@
         if (!input || !preview) return;
         input.addEventListener('change', (e) => {
             const file = e.target.files?.[0];
+            const error = document.getElementById('cover-client-error');
             if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                input.value = '';
+                if (error) {
+                    error.textContent = 'This image is too large. Choose a file that is 5 MB or smaller.';
+                    error.classList.remove('hidden');
+                }
+                return;
+            }
+            error?.classList.add('hidden');
             const url = URL.createObjectURL(file);
             preview.src = url;
             preview.classList.remove('hidden');
