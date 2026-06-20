@@ -3,15 +3,29 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Icon } from "@/components/Icon";
 import { Button } from "@/components/ui/button";
+import { artistApi } from "@/lib/artistApi";
 
 export function ArtistLogin() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate("/artist");
+    setError("");
+    setSubmitting(true);
+    try {
+      await artistApi.login(email, password, remember);
+      navigate("/artist");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Sign in failed.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -79,7 +93,7 @@ export function ArtistLogin() {
               <span className="font-label-md text-label-md uppercase tracking-widest text-secondary">Email address</span>
               <div className="flex h-14 items-center gap-sm rounded-xl border border-transparent bg-surface-container-high px-md transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
                 <Icon name="mail" className="text-[20px] text-secondary" />
-                <input required type="email" autoComplete="email" placeholder="artist@example.com" className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline" />
+                <input required value={email} onChange={(event) => setEmail(event.target.value)} type="email" autoComplete="email" placeholder="artist@example.com" className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline" />
               </div>
             </label>
 
@@ -87,7 +101,7 @@ export function ArtistLogin() {
               <span className="font-label-md text-label-md uppercase tracking-widest text-secondary">Password</span>
               <div className="flex h-14 items-center gap-sm rounded-xl border border-transparent bg-surface-container-high px-md transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
                 <Icon name="lock" className="text-[20px] text-secondary" />
-                <input required minLength={8} type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Enter your password" className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline" />
+                <input required value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Enter your password" className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline" />
                 <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"} className="text-secondary transition-colors hover:text-primary">
                   <Icon name={showPassword ? "visibility_off" : "visibility"} className="text-[20px]" />
                 </button>
@@ -104,8 +118,10 @@ export function ArtistLogin() {
               <a href="#" className="font-label-md text-label-md text-primary hover:underline">Forgot password?</a>
             </div>
 
-            <Button type="submit" size="lg" className="w-full">
-              Sign in to workspace <Icon name="arrow_forward" />
+            {error && <div role="alert" className="flex items-start gap-sm rounded-xl border border-error/30 bg-error-container/20 p-md text-error"><Icon name="error" /><span className="text-body-md">{error}</span></div>}
+
+            <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+              {submitting ? <><Icon name="progress_activity" className="animate-spin" />Signing in…</> : <>Sign in to workspace <Icon name="arrow_forward" /></>}
             </Button>
           </form>
 

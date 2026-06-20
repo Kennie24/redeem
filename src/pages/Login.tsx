@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Icon } from "@/components/Icon";
+import { CountryPhoneInput } from "@/components/CountryPhoneInput";
 
 type Method = "phone" | "email";
 
@@ -70,21 +71,7 @@ export function Login() {
               {method === "phone" ? "Phone number" : "Email address"}
             </label>
             {method === "phone" ? (
-              <div className="flex items-center rounded-lg border border-transparent bg-surface-container-high p-xs transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-                <div className="flex items-center gap-xs border-r border-surface-container-highest px-md py-sm">
-                  <span className="font-body-md text-body-md">+1</span>
-                  <Icon name="expand_more" className="text-[18px] text-on-surface-variant" />
-                </div>
-                <input
-                  required
-                  value={value}
-                  onChange={(event) => setValue(event.target.value)}
-                  className="flex-grow bg-transparent px-md py-sm font-body-lg text-body-lg outline-none placeholder:text-on-surface-variant/40"
-                  placeholder="000 000 0000"
-                  type="tel"
-                  autoComplete="tel"
-                />
-              </div>
+              <CountryPhoneInput value={value} onChange={setValue} required />
             ) : (
               <input
                 required

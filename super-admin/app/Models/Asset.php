@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Asset extends Model
@@ -12,7 +14,7 @@ class Asset extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'artist', 'slug', 'price', 'redemption_limit',
+        'user_id', 'title', 'artist', 'release_type', 'slug', 'price', 'redemption_limit',
         'redemptions', 'status', 'cover_path', 'description',
     ];
 
@@ -38,6 +40,16 @@ class Asset extends Model
                 $asset->slug = $slug;
             }
         });
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function tracks(): HasMany
+    {
+        return $this->hasMany(AssetTrack::class)->orderBy('position');
     }
 
     public function coverUrl(): Attribute

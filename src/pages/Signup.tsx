@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Icon } from "@/components/Icon";
+import { CountryPhoneInput } from "@/components/CountryPhoneInput";
 
 type Method = "email" | "phone";
 
@@ -9,6 +10,7 @@ export function Signup() {
   const navigate = useNavigate();
   const [method, setMethod] = useState<Method>("email");
   const [showPassword, setShowPassword] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -76,10 +78,7 @@ export function Signup() {
             <>
               <div className="space-y-2">
                 <label htmlFor="phone" className="px-1 font-label-md text-label-md uppercase tracking-wider text-on-surface-variant">Phone Number</label>
-                <div className="flex gap-2">
-                  <div className="flex h-14 w-24 items-center justify-center rounded-xl border border-transparent bg-surface-container-high">+1 <Icon name="expand_more" className="ml-1 text-sm" /></div>
-                  <input id="phone" name="phone" required type="tel" autoComplete="tel" placeholder="555-000-0000" className="h-14 min-w-0 flex-grow rounded-xl border border-transparent bg-surface-container-high px-4 outline-none transition-all placeholder:text-on-surface-variant/40 focus:border-on-surface-variant" />
-                </div>
+                <CountryPhoneInput id="signup-phone" value={phone} onChange={setPhone} required />
               </div>
               <p className="px-4 text-center text-xs text-on-surface-variant/60">By tapping Continue, we will send you a text with a verification code. Message and data rates may apply.</p>
             </>

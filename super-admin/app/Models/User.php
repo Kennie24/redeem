@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'email', 'password', 'is_super_admin'])]
+#[Fillable(['name', 'email', 'password', 'is_super_admin', 'is_artist', 'artist_name'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -22,12 +23,18 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
+    }
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
+            'is_artist' => 'boolean',
         ];
     }
 }

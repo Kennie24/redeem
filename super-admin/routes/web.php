@@ -1,10 +1,24 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\ArtistApiController;
 use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/super-admin');
+
+Route::prefix('api/artist')->name('artist-api.')->group(function () {
+    Route::get('/csrf', fn () => response()->json(['token' => csrf_token()]))->name('csrf');
+    Route::post('/login', [ArtistApiController::class, 'login'])->name('login');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/me', [ArtistApiController::class, 'me'])->name('me');
+        Route::post('/logout', [ArtistApiController::class, 'logout'])->name('logout');
+        Route::get('/releases', [ArtistApiController::class, 'releases'])->name('releases');
+        Route::post('/releases', [ArtistApiController::class, 'storeRelease'])->name('releases.store');
+        Route::post('/releases/{asset}/tracks/{track}/sample-played', [ArtistApiController::class, 'samplePlayed'])->whereNumber('track')->name('sample-played');
+    });
+});
 
 Route::prefix('super-admin')->name('super-admin.')->group(function () {
     Route::controller(SuperAdminController::class)->group(function () {
