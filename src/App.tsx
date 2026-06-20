@@ -19,13 +19,13 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/artist/login" element={<ArtistLogin />} />
+      <Route path="/artist" element={<ArtistDashboard />} />
       <Route element={<AppShell />}>
         <Route path="/scan" element={<ScanToRedeem />} />
         <Route path="/redeem" element={<RedeemYourEP />} />
         <Route path="/download" element={<DownloadReady />} />
         <Route path="/token" element={<TokenStatus />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/artist" element={<ArtistDashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/settings" element={<ProfileSettings />} />
       </Route>

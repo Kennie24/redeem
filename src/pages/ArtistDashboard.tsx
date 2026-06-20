@@ -46,8 +46,24 @@ export function ArtistDashboard() {
 
   if (loading) return <main className="flex min-h-screen items-center justify-center"><Icon name="progress_activity" className="animate-spin text-primary text-[42px]" /></main>;
 
+  const logout = async () => {
+    await artistApi.logout();
+    navigate("/artist/login", { replace: true });
+  };
+
   return (
-    <main className="mx-auto max-w-7xl space-y-xl px-container-margin pb-32 pt-24">
+    <div className="min-h-screen bg-background text-on-background">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b border-outline-variant/15 bg-background/85 px-container-margin backdrop-blur-xl">
+        <div className="flex items-center gap-sm">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-container text-on-primary-container"><Icon name="graphic_eq" filled /></span>
+          <div className="leading-none"><span className="block font-headline-md text-headline-md font-black tracking-tighter text-primary">SoundRedeem</span><span className="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Artist Studio</span></div>
+        </div>
+        <div className="flex items-center gap-sm">
+          <span className="hidden font-label-md text-label-md text-secondary sm:block">{artist?.email}</span>
+          <button onClick={() => void logout()} className="flex h-10 items-center gap-xs rounded-full bg-surface-container-high px-md font-label-md text-label-md text-secondary transition-colors hover:text-error"><Icon name="logout" className="text-[18px]" />Sign out</button>
+        </div>
+      </header>
+      <main className="mx-auto max-w-7xl space-y-xl px-container-margin pb-16 pt-24">
       <Reveal direction="down">
         <section className="relative overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-container p-xl">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
@@ -83,7 +99,8 @@ export function ArtistDashboard() {
       <Reveal><section className="rounded-2xl border border-primary/20 bg-primary/5 p-xl"><div className="flex flex-col gap-lg md:flex-row md:items-center md:justify-between"><div className="flex items-start gap-md"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"><Icon name="headphones" /></div><div><h2 className="font-headline-md text-headline-md">Preview before purchase</h2><p className="mt-xs max-w-2xl font-body-md text-body-md text-secondary">Every uploaded track can expose a 30-second sample. Customers hear the preview in the store before purchasing or redeeming the full release.</p></div></div><Button onClick={() => setStudioOpen(true)}><Icon name="add_circle" />Create release</Button></div></section></Reveal>
 
       {studioOpen && <UploadStudio onClose={() => setStudioOpen(false)} onSave={saveRelease} />}
-    </main>
+      </main>
+    </div>
   );
 }
 
