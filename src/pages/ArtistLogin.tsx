@@ -1,21 +1,53 @@
-import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef, type FormEvent } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@/components/Icon";
 import { Button } from "@/components/ui/button";
 import { artistApi } from "@/lib/artistApi";
 
 export function ArtistLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [step, setStep] = useState<"email" | "password">("email");
+  const [email, setEmail] = useState("");
+  const [artistName, setArtistName] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const prefill = params.get("email");
+    if (prefill) setEmail(prefill);
+  }, [location.search]);
+
+  useEffect(() => {
+    if (step === "password") passwordRef.current?.focus();
+  }, [step]);
+
+  const submitEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (step === "password") {
+      await submitPassword();
+      return;
+    }
+    setError("");
+    setSubmitting(true);
+    try {
+      const result = await artistApi.checkEmail(email);
+      setArtistName(result.name);
+      setStep("password");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not verify email.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitPassword = async () => {
     setError("");
     setSubmitting(true);
     try {
@@ -26,6 +58,13 @@ export function ArtistLogin() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const resetEmail = () => {
+    setStep("email");
+    setPassword("");
+    setArtistName("");
+    setError("");
   };
 
   return (
@@ -85,43 +124,131 @@ export function ArtistLogin() {
               <Icon name="person" className="text-[28px]" filled />
             </div>
             <h2 className="font-headline-lg text-headline-lg font-black">Artist sign in</h2>
-            <p className="mt-xs font-body-md text-body-md text-secondary">Welcome back. Continue to your artist workspace.</p>
+            <AnimatePresence mode="wait">
+              {step === "email" ? (
+                <motion.p
+                  key="sub-email"
+                  className="mt-xs font-body-md text-body-md text-secondary"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  Welcome back. Continue to your artist workspace.
+                </motion.p>
+              ) : (
+                <motion.p
+                  key="sub-password"
+                  className="mt-xs font-body-md text-body-md text-secondary"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  Welcome back, <span className="font-semibold text-on-surface">{artistName}</span>. Enter your password.
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
 
-          <form onSubmit={submit} className="space-y-md">
+          <form onSubmit={(e) => void submitEmail(e)} className="space-y-md" noValidate>
+            {/* Email field — locked after validation */}
             <label className="block space-y-xs">
               <span className="font-label-md text-label-md uppercase tracking-widest text-secondary">Email address</span>
-              <div className="flex h-14 items-center gap-sm rounded-xl border border-transparent bg-surface-container-high px-md transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+              <div className={`flex h-14 items-center gap-sm rounded-xl border px-md transition-all ${step === "password" ? "border-outline-variant/20 bg-surface-container-high/60" : "border-transparent bg-surface-container-high focus-within:border-primary focus-within:ring-1 focus-within:ring-primary"}`}>
                 <Icon name="mail" className="text-[20px] text-secondary" />
-                <input required value={email} onChange={(event) => setEmail(event.target.value)} type="email" autoComplete="email" placeholder="artist@example.com" className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline" />
+                <input
+                  required
+                  autoFocus={step === "email"}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                  autoComplete="email"
+                  placeholder="artist@example.com"
+                  readOnly={step === "password"}
+                  className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline read-only:cursor-default read-only:text-secondary"
+                />
+                {step === "password" && (
+                  <button
+                    type="button"
+                    onClick={resetEmail}
+                    className="font-label-sm text-label-sm text-primary hover:underline"
+                  >
+                    Change
+                  </button>
+                )}
               </div>
             </label>
 
-            <label className="block space-y-xs">
-              <span className="font-label-md text-label-md uppercase tracking-widest text-secondary">Password</span>
-              <div className="flex h-14 items-center gap-sm rounded-xl border border-transparent bg-surface-container-high px-md transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-                <Icon name="lock" className="text-[20px] text-secondary" />
-                <input required value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Enter your password" className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline" />
-                <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"} className="text-secondary transition-colors hover:text-primary">
-                  <Icon name={showPassword ? "visibility_off" : "visibility"} className="text-[20px]" />
-                </button>
+            {/* Password field — revealed after email is validated */}
+            <AnimatePresence>
+              {step === "password" && (
+                <motion.div
+                  key="password-block"
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: undefined }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-md pt-md">
+                    <label className="block space-y-xs">
+                      <span className="font-label-md text-label-md uppercase tracking-widest text-secondary">Password</span>
+                      <div className="flex h-14 items-center gap-sm rounded-xl border border-transparent bg-surface-container-high px-md transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+                        <Icon name="lock" className="text-[20px] text-secondary" />
+                        <input
+                          ref={passwordRef}
+                          required={step === "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          minLength={8}
+                          type={showPassword ? "text" : "password"}
+                          autoComplete="current-password"
+                          placeholder="Enter your password"
+                          className="min-w-0 flex-1 bg-transparent text-body-lg text-on-surface outline-none placeholder:text-outline"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          className="text-secondary transition-colors hover:text-primary"
+                        >
+                          <Icon name={showPassword ? "visibility_off" : "visibility"} className="text-[20px]" />
+                        </button>
+                      </div>
+                    </label>
+
+                    <div className="flex items-center justify-between">
+                      <label className="flex cursor-pointer items-center gap-sm font-body-md text-body-md text-secondary">
+                        <button
+                          type="button"
+                          role="checkbox"
+                          aria-checked={remember}
+                          onClick={() => setRemember((v) => !v)}
+                          className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${remember ? "border-primary-container bg-primary-container text-on-primary-container" : "border-outline bg-transparent"}`}
+                        >
+                          {remember && <Icon name="check" className="text-[15px]" />}
+                        </button>
+                        Remember me
+                      </label>
+                      <a href="#" className="font-label-md text-label-md text-primary hover:underline">Forgot password?</a>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {error && (
+              <div role="alert" className="flex items-start gap-sm rounded-xl border border-error/30 bg-error-container/20 p-md text-error">
+                <Icon name="error" /><span className="text-body-md">{error}</span>
               </div>
-            </label>
-
-            <div className="flex items-center justify-between py-xs">
-              <label className="flex cursor-pointer items-center gap-sm font-body-md text-body-md text-secondary">
-                <button type="button" role="checkbox" aria-checked={remember} onClick={() => setRemember((value) => !value)} className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${remember ? "border-primary-container bg-primary-container text-on-primary-container" : "border-outline bg-transparent"}`}>
-                  {remember && <Icon name="check" className="text-[15px]" />}
-                </button>
-                Remember me
-              </label>
-              <a href="#" className="font-label-md text-label-md text-primary hover:underline">Forgot password?</a>
-            </div>
-
-            {error && <div role="alert" className="flex items-start gap-sm rounded-xl border border-error/30 bg-error-container/20 p-md text-error"><Icon name="error" /><span className="text-body-md">{error}</span></div>}
+            )}
 
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? <><Icon name="progress_activity" className="animate-spin" />Signing in…</> : <>Sign in to workspace <Icon name="arrow_forward" /></>}
+              {submitting && step === "email" && <><Icon name="progress_activity" className="animate-spin" />Checking…</>}
+              {submitting && step === "password" && <><Icon name="progress_activity" className="animate-spin" />Signing in…</>}
+              {!submitting && step === "email" && <>Continue <Icon name="arrow_forward" /></>}
+              {!submitting && step === "password" && <>Sign in to workspace <Icon name="arrow_forward" /></>}
             </Button>
           </form>
 

@@ -13,6 +13,19 @@ use Illuminate\Validation\Rule;
 
 class ArtistApiController extends Controller
 {
+    public function checkEmail(Request $request): JsonResponse
+    {
+        $request->validate(['email' => ['required', 'email']]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || (! $user->is_artist && ! $user->is_super_admin)) {
+            return response()->json(['message' => 'No artist account was found with that email address.'], 404);
+        }
+
+        return response()->json(['name' => $user->artist_name ?: $user->name]);
+    }
+
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->validate([

@@ -22,6 +22,7 @@ class StoreAssetRequest extends FormRequest
             'price'            => ['required', 'numeric', 'min:0', 'max:9999.99'],
             'redemption_limit' => ['required', 'integer', 'min:1', 'max:1000000'],
             'status'           => ['required', Rule::in(['live', 'scheduled', 'archived'])],
+            'release_type'     => ['nullable', Rule::in(['single', 'album'])],
             'description'      => ['nullable', 'string', 'max:2000'],
             'cover'            => [
                 $this->isMethod('post') ? 'nullable' : 'nullable',

@@ -11,7 +11,7 @@ class ArtistSeeder extends Seeder
     public function run(): void
     {
         $user = User::firstOrNew([
-            'email' => env('ARTIST_EMAIL', 'artist@soundredeem.test'),
+            'email' => env('ARTIST_EMAIL', 'artist@soundredeem.com'),
         ]);
 
         $user->name = env('ARTIST_NAME', 'Cyber Echoes');

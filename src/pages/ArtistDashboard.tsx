@@ -9,10 +9,6 @@ const FALLBACK_COVER = "https://lh3.googleusercontent.com/aida-public/AB6AXuChqV
 
 type UploadTrack = Track & { file?: File };
 
-const stats = [
-  ["Total Redemptions", "20,518", "+12.4%", "confirmation_number"], ["Sample Plays", "54,281", "+18.6%", "play_circle"], ["Revenue MTD", "$18,420", "+9.2%", "payments"], ["Followers", "42.8K", "+4.1%", "group"],
-];
-
 export function ArtistDashboard() {
   const navigate = useNavigate();
   const [releases, setReleases] = useState<Release[]>([]);
@@ -79,13 +75,23 @@ export function ArtistDashboard() {
       </Reveal>
 
       <StaggerGroup className="grid grid-cols-2 gap-gutter xl:grid-cols-4" stagger={0.08}>
-        {stats.map(([label, value, delta, icon]) => <StaggerItem key={label}><div className="bento-card h-full rounded-xl border border-outline-variant/10 p-md"><div className="mb-md flex items-center justify-between"><div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container-high text-primary"><Icon name={icon} /></div><span className="rounded-full bg-primary/15 px-2 py-1 font-label-sm text-label-sm font-bold text-primary">{delta}</span></div><p className="font-headline-lg text-headline-lg font-black">{value}</p><p className="mt-xs font-label-md text-label-md uppercase tracking-widest text-secondary">{label}</p></div></StaggerItem>)}
+        {[
+          ["Total Releases", releases.length.toLocaleString(), "confirmation_number"],
+          ["Total Tracks", releases.reduce((sum, r) => sum + r.tracks.length, 0).toLocaleString(), "audio_file"],
+          ["Total Redemptions", releases.reduce((sum, r) => sum + r.redemptions, 0).toLocaleString(), "download"],
+          ["Sample Plays", releases.reduce((sum, r) => sum + r.tracks.reduce((s, t) => s + (t.samplePlays ?? 0), 0), 0).toLocaleString(), "play_circle"],
+        ].map(([label, value, icon]) => (
+          <StaggerItem key={label}>
+            <div className="bento-card h-full rounded-xl border border-outline-variant/10 p-md">
+              <div className="mb-md flex items-center justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container-high text-primary"><Icon name={icon} /></div>
+              </div>
+              <p className="font-headline-lg text-headline-lg font-black">{value}</p>
+              <p className="mt-xs font-label-md text-label-md uppercase tracking-widest text-secondary">{label}</p>
+            </div>
+          </StaggerItem>
+        ))}
       </StaggerGroup>
-
-      <section className="grid grid-cols-1 gap-gutter xl:grid-cols-3">
-        <Reveal className="xl:col-span-2"><PerformanceChart /></Reveal>
-        <Reveal direction="left"><div className="bento-card h-full rounded-xl border border-outline-variant/10 p-lg"><div className="mb-lg flex items-center justify-between"><div><h2 className="font-headline-md text-headline-md">Preview conversion</h2><p className="font-body-md text-body-md text-secondary">Listeners who purchased after sampling</p></div><Icon name="trending_up" className="text-primary text-[32px]" /></div><p className="font-display-lg text-display-lg font-black">38.4%</p><p className="mt-xs text-primary">+6.2% this month</p><div className="mt-xl space-y-md">{[["0–10 sec", 18],["10–20 sec", 31],["20–30 sec", 51]].map(([label, width]) => <div key={label as string}><div className="mb-xs flex justify-between text-body-md"><span>{label}</span><span className="text-secondary">{width}%</span></div><div className="h-2 overflow-hidden rounded-full bg-surface-container-high"><div className="h-full rounded-full bg-primary" style={{ width: `${width}%` }} /></div></div>)}</div></div></Reveal>
-      </section>
 
       {error && <div role="alert" className="flex items-center gap-sm rounded-xl border border-error/30 bg-error-container/20 p-md text-error"><Icon name="error" /><span>{error}</span></div>}
 
@@ -104,9 +110,6 @@ export function ArtistDashboard() {
   );
 }
 
-function PerformanceChart() {
-  return <div className="bento-card rounded-xl border border-outline-variant/10 p-lg"><div className="mb-lg flex items-center justify-between"><div><h2 className="font-headline-md text-headline-md">Plays & purchases</h2><p className="font-body-md text-body-md text-secondary">30-day sample activity</p></div><span className="rounded-full bg-surface-container-high px-md py-xs font-label-md text-label-md text-secondary">30 DAYS</span></div><div className="h-64"><svg viewBox="0 0 800 240" className="h-full w-full" preserveAspectRatio="none"><defs><linearGradient id="artistChart" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#53e076" stopOpacity=".35"/><stop offset="100%" stopColor="#53e076" stopOpacity="0"/></linearGradient></defs>{[30,90,150,210].map((y) => <line key={y} x1="0" x2="800" y1={y} y2={y} stroke="#353534"/>)}<path d="M0 210 C70 205 95 160 150 170 S245 120 300 135 S390 70 450 100 S545 50 600 70 S700 20 800 35 L800 240 L0 240 Z" fill="url(#artistChart)"/><path d="M0 210 C70 205 95 160 150 170 S245 120 300 135 S390 70 450 100 S545 50 600 70 S700 20 800 35" fill="none" stroke="#53e076" strokeWidth="4" strokeLinecap="round"/></svg></div><div className="flex justify-between font-label-sm text-label-sm text-secondary">{["May 20","May 25","May 30","Jun 4","Jun 9","Jun 14","Jun 19"].map((d) => <span key={d}>{d}</span>)}</div></div>;
-}
 
 function ReleaseCard({ release, activePreview, setActivePreview }: { release: Release; activePreview: string | null; setActivePreview: (id: string | null) => void }) {
   const progress = Math.round((release.redemptions / release.limit) * 100);

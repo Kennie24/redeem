@@ -60,6 +60,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const artistApi = {
+  checkEmail: (email: string) => request<{ name: string }>("/api/artist/check-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  }),
   login: async (email: string, password: string, remember: boolean) => {
     const result = await request<{ user: ArtistUser }>("/api/artist/login", {
       method: "POST",

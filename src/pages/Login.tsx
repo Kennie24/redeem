@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Icon } from "@/components/Icon";
 import { CountryPhoneInput } from "@/components/CountryPhoneInput";
+import { artistApi } from "@/lib/artistApi";
 
 type Method = "phone" | "email";
 
@@ -21,10 +22,28 @@ export function Login() {
   const navigate = useNavigate();
   const [method, setMethod] = useState<Method>("phone");
   const [value, setValue] = useState("");
+  const [checking, setChecking] = useState(false);
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (value.trim()) navigate("/scan");
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    // If an artist email is entered here, route to the artist login flow.
+    if (method === "email" && /.+@.+\..+/.test(trimmed)) {
+      setChecking(true);
+      try {
+        await artistApi.checkEmail(trimmed);
+        navigate(`/artist/login?email=${encodeURIComponent(trimmed)}`);
+        return;
+      } catch {
+        // Not an artist account — fall through to listener flow.
+      } finally {
+        setChecking(false);
+      }
+    }
+
+    navigate("/scan");
   };
 
   return (
@@ -65,7 +84,7 @@ export function Login() {
           ))}
         </div>
 
-        <form onSubmit={submit} className="mb-xl space-y-lg">
+        <form onSubmit={(e) => void submit(e)} className="mb-xl space-y-lg">
           <motion.div key={method} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}>
             <label className="mb-xs ml-base block font-label-md text-label-md text-on-surface-variant">
               {method === "phone" ? "Phone number" : "Email address"}
@@ -85,8 +104,8 @@ export function Login() {
             )}
           </motion.div>
 
-          <button className="w-full rounded-full bg-primary-container py-md font-body-lg text-body-lg font-bold text-[#191414] shadow-lg transition-all hover:bg-[#1ed760] hover:scale-[1.02] active:scale-95">
-            Continue
+          <button disabled={checking} className="w-full rounded-full bg-primary-container py-md font-body-lg text-body-lg font-bold text-[#191414] shadow-lg transition-all hover:bg-[#1ed760] hover:scale-[1.02] active:scale-95 disabled:opacity-60">
+            {checking ? "Checking…" : "Continue"}
           </button>
         </form>
 
