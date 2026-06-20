@@ -3,7 +3,7 @@ import { Icon } from "./Icon";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { to: "/admin", icon: "home", label: "Home" },
+  { to: "/artist", icon: "equalizer", label: "Artist" },
   { to: "/scan", icon: "qr_code_scanner", label: "Redeem" },
   { to: "/redeem", icon: "library_music", label: "Library" },
   { to: "/profile", icon: "person", label: "Profile" },
