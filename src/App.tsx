@@ -10,6 +10,7 @@ import { ProfileSettings } from "@/pages/ProfileSettings";
 import { Login } from "@/pages/Login";
 import { Signup } from "@/pages/Signup";
 import { ArtistDashboard } from "@/pages/ArtistDashboard";
+import { ArtistLogin } from "@/pages/ArtistLogin";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/artist/login" element={<ArtistLogin />} />
       <Route element={<AppShell />}>
         <Route path="/scan" element={<ScanToRedeem />} />
         <Route path="/redeem" element={<RedeemYourEP />} />
